@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              name="CashFlowForecast"
+              pageWidth="595"
+              pageHeight="842"
+              columnWidth="555"
+              leftMargin="20"
+              rightMargin="20"
+              topMargin="20"
+              bottomMargin="20">
+
+    <parameter name="ReportTitle" class="java.lang.String"/>
+    <parameter name="AsOfDate" class="java.lang.String"/>
+
+    <field name="flowDate" class="java.lang.String"/>
+    <field name="description" class="java.lang.String"/>
+    <field name="direction" class="java.lang.String"/>
+    <field name="amount" class="java.math.BigDecimal"/>
+    <field name="source" class="java.lang.String"/>
+
+    <title>
+        <band height="50">
+            <textField>
+                <reportElement x="0" y="0" width="550" height="20"/>
+                <textElement textAlignment="Center"/>
+                <textFieldExpression><![CDATA[$P{ReportTitle}]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="0" y="20" width="550" height="20"/>
+                <textElement textAlignment="Center"/>
+                <textFieldExpression><![CDATA["Starting from " + $P{AsOfDate}]]></textFieldExpression>
+            </textField>
+        </band>
+    </title>
+
+    <columnHeader>
+        <band height="20">
+            <staticText>
+                <reportElement x="0" y="0" width="80" height="20"/>
+                <text><![CDATA[Date]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="80" y="0" width="200" height="20"/>
+                <text><![CDATA[Description]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="280" y="0" width="70" height="20"/>
+                <text><![CDATA[Direction]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="350" y="0" width="100" height="20"/>
+                <text><![CDATA[Amount]]></text>
+            </staticText>
+
+            <staticText>
+                <reportElement x="450" y="0" width="100" height="20"/>
+                <text><![CDATA[Source]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <detail>
+        <band height="20">
+            <textField>
+                <reportElement x="0" y="0" width="80" height="20"/>
+                <textFieldExpression><![CDATA[$F{flowDate}]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="80" y="0" width="200" height="20"/>
+                <textFieldExpression><![CDATA[$F{description}]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="280" y="0" width="70" height="20"/>
+                <textFieldExpression><![CDATA[$F{direction}]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="350" y="0" width="100" height="20"/>
+                <textFieldExpression><![CDATA[$F{amount}.toString()]]></textFieldExpression>
+            </textField>
+
+            <textField>
+                <reportElement x="450" y="0" width="100" height="20"/>
+                <textFieldExpression><![CDATA[$F{source}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+</jasperReport>
