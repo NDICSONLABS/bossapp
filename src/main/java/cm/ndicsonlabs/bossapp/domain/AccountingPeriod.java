@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
 @Entity
@@ -34,6 +35,39 @@ public class AccountingPeriod extends BaseEntity {
 
     @Column(name = "locked_date")
     private LocalDate lockedDate;
+    // src/main/java/com/institution/finance/domain/AccountingPeriod.java
+    @Column(name = "reopened_by")
+    private String reopenedBy;
+
+    @Column(name = "reopened_at")
+    private Instant reopenedAt;
+
+    @Column(name = "reopen_reason", columnDefinition = "TEXT")
+    private String reopenReason;
+
+    public String getReopenedBy() {
+        return reopenedBy;
+    }
+
+    public void setReopenedBy(String reopenedBy) {
+        this.reopenedBy = reopenedBy;
+    }
+
+    public Instant getReopenedAt() {
+        return reopenedAt;
+    }
+
+    public void setReopenedAt(Instant reopenedAt) {
+        this.reopenedAt = reopenedAt;
+    }
+
+    public String getReopenReason() {
+        return reopenReason;
+    }
+
+    public void setReopenReason(String reopenReason) {
+        this.reopenReason = reopenReason;
+    }
 
     public Integer getFiscalYear() {
         return fiscalYear;

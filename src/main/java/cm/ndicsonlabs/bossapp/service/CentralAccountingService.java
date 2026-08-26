@@ -32,6 +32,7 @@ import java.util.UUID;
 @Service
 public class CentralAccountingService {
 
+    private final CurrentUserService currentUserService;
     private final DepartmentRepository departmentRepository;
     private final AccountingPeriodRepository periodRepository;
     private final DepartmentSubmissionRepository submissionRepository;
@@ -43,7 +44,7 @@ public class CentralAccountingService {
     private final AuditService auditService;
 
     public CentralAccountingService(
-            DepartmentRepository departmentRepository,
+            CurrentUserService currentUserService, DepartmentRepository departmentRepository,
             AccountingPeriodRepository periodRepository,
             DepartmentSubmissionRepository submissionRepository,
             SubmissionTransactionRepository submissionTransactionRepository,
@@ -53,6 +54,7 @@ public class CentralAccountingService {
             PaymentRepository paymentRepository,
             AuditService auditService
     ) {
+        this.currentUserService = currentUserService;
         this.departmentRepository = departmentRepository;
         this.periodRepository = periodRepository;
         this.submissionRepository = submissionRepository;
@@ -389,8 +391,78 @@ public class CentralAccountingService {
         return submissionRepository.save(submission);
     }
 
+//    @Transactional
+//    public AccountingPeriod lockPeriod(UUID periodId) {
+//        AccountingPeriod period = periodRepository.findById(periodId)
+//                .orElseThrow(() -> new IllegalArgumentException("Accounting period not found"));
+//
+//        boolean activeSubmissionExists = submissionRepository.existsByPeriodAndStatusIn(
+//                period,
+//                List.of(
+//                        "DRAFT",
+//                        "DEPARTMENT_APPROVED",
+//                        "SUBMITTED",
+//                        "UNDER_CENTRAL_REVIEW"
+//                )
+//        );
+//
+//        if (activeSubmissionExists) {
+//            throw new IllegalStateException(
+//                    "Period cannot be locked while draft, approved, submitted, or under-review submissions exist."
+//            );
+//        }
+//
+//        period.setStatus("LOCKED");
+//        period.setClosedBy(currentUsername());
+//        period.setLockedDate(LocalDate.now());
+//
+//        auditService.log(
+//                "ACCOUNTING_PERIOD",
+//                period.getId(),
+//                "LOCK_PERIOD",
+//                null,
+//                period.getStatus(),
+//                "Accounting period locked"
+//        );
+//
+//        return periodRepository.save(period);
+//    }
+// src/main/java/com/institution/finance/service/CentralAccountingService.java
+
+    @Transactional
+    public AccountingPeriod openPeriod(UUID periodId, String reason) {
+        requirePrivilege("ACCOUNTING_PERIOD_OPEN");
+
+        AccountingPeriod period = periodRepository.findById(periodId)
+                .orElseThrow(() -> new IllegalArgumentException("Accounting period not found"));
+
+        if (!"LOCKED".equals(period.getStatus())) {
+            throw new IllegalStateException("Only locked periods can be opened.");
+        }
+
+        period.setStatus("OPEN");
+        period.setReopenedBy(currentUserService.username());
+        period.setReopenedAt(Instant.now());
+        period.setReopenReason(reason);
+        period.setLockedDate(null);
+        period.setClosedBy(null);
+
+        auditService.log(
+                "ACCOUNTING_PERIOD",
+                period.getId(),
+                "OPEN_PERIOD",
+                null,
+                period.getStatus(),
+                reason
+        );
+
+        return periodRepository.save(period);
+    }
+
     @Transactional
     public AccountingPeriod lockPeriod(UUID periodId) {
+        requirePrivilege("ACCOUNTING_PERIOD_LOCK");
+
         AccountingPeriod period = periodRepository.findById(periodId)
                 .orElseThrow(() -> new IllegalArgumentException("Accounting period not found"));
 
@@ -411,7 +483,7 @@ public class CentralAccountingService {
         }
 
         period.setStatus("LOCKED");
-        period.setClosedBy(currentUsername());
+        period.setClosedBy(currentUserService.username());
         period.setLockedDate(LocalDate.now());
 
         auditService.log(
@@ -426,6 +498,13 @@ public class CentralAccountingService {
         return periodRepository.save(period);
     }
 
+    private void requirePrivilege(String privilegeCode) {
+        if (!currentUserService.hasPrivilege(privilegeCode)) {
+            throw new org.springframework.security.access.AccessDeniedException(
+                    "Current user does not have privilege: " + privilegeCode
+            );
+        }
+    }
     private DepartmentSubmission getSubmission(UUID submissionId) {
         return submissionRepository.findById(submissionId)
                 .orElseThrow(() -> new IllegalArgumentException("Submission not found"));

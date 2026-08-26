@@ -28,7 +28,12 @@ public class MainLayout extends AppLayout implements RouterLayout {
         SideNavItem education = new SideNavItem("Education");
         education.getStyle().set("font-weight", "bold").set("padding", "10px").set("display", "block");
         nav.addItem(education);
+        nav.addItem(new SideNavItem("Academic Calendar", AcademicCalendarView.class));
+        nav.addItem(new SideNavItem("Fee Schedules", FeeScheduleView.class));
         nav.addItem(new SideNavItem("Student Charges", StudentChargeView.class));
+        nav.addItem(new SideNavItem("Payment Plans", StudentPaymentPlanView.class));
+        nav.addItem(new SideNavItem("Receipts", StudentReceiptView.class));
+        nav.addItem(new SideNavItem("Cashier Sessions", CashierSessionView.class));
 
         SideNavItem health = new SideNavItem("Healthcare");
         health.getStyle().set("font-weight", "bold").set("padding", "10px").set("display", "block");

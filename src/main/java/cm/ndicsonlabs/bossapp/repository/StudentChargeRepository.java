@@ -2,6 +2,8 @@
 package cm.ndicsonlabs.bossapp.repository;
 
 import cm.ndicsonlabs.bossapp.domain.Department;
+import cm.ndicsonlabs.bossapp.domain.FeeSchedule;
+import cm.ndicsonlabs.bossapp.domain.Student;
 import cm.ndicsonlabs.bossapp.domain.StudentCharge;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -17,4 +19,5 @@ public interface StudentChargeRepository extends JpaRepository<StudentCharge, UU
             LocalDate end,
             Collection<String> statuses
     );
+    boolean existsByStudentAndFeeSchedule(Student student, FeeSchedule feeSchedule);
 }
