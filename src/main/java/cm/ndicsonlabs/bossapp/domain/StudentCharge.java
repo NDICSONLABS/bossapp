@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDate;
 
 @Getter
@@ -73,6 +74,15 @@ public class StudentCharge extends BaseEntity {
 
     @Column(name = "accounting_status", nullable = false)
     private String accountingStatus = "NOT_SUBMITTED";
+
+    @Column(name = "gl_status", nullable = false)
+    private String glStatus = "NOT_POSTED";
+
+    @Column(name = "gl_error", columnDefinition = "TEXT")
+    private String glError;
+
+    @Column(name = "gl_posted_at")
+    private Instant glPostedAt;
 
     public BigDecimal getRemainingAmount() {
         BigDecimal target = netAmount != null ? netAmount : amount;

@@ -17,6 +17,13 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
             LocalDate end,
             Collection<String> statuses
     );
+    List<Payment> findByGlStatusIn(Collection<String> statuses);
+
+    long countByPaymentDateBetweenAndGlStatusIn(
+            LocalDate start,
+            LocalDate end,
+            Collection<String> statuses
+    );
 
     List<Payment> findByDepartmentAndPaymentDate(Department department, LocalDate paymentDate);
 }

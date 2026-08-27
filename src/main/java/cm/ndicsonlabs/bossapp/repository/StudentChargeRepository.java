@@ -20,4 +20,11 @@ public interface StudentChargeRepository extends JpaRepository<StudentCharge, UU
             Collection<String> statuses
     );
     boolean existsByStudentAndFeeSchedule(Student student, FeeSchedule feeSchedule);
+    List<StudentCharge> findByGlStatusIn(Collection<String> statuses);
+
+    long countByChargeDateBetweenAndGlStatusIn(
+            LocalDate start,
+            LocalDate end,
+            Collection<String> statuses
+    );
 }

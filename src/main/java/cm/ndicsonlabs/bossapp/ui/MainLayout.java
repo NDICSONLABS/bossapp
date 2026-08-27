@@ -53,6 +53,19 @@ public class MainLayout extends AppLayout implements RouterLayout {
         nav.addItem(finance);
         nav.addItem(new SideNavItem("Payments", PaymentView.class));
 
+        SideNavItem accounting = new SideNavItem("Double-Entry Accounting");
+        accounting.getStyle().set("font-weight", "bold").set("padding", "10px").set("display", "block");
+        nav.addItem(accounting);
+        nav.addItem(new SideNavItem("Chart of Accounts", ChartOfAccountsView.class));
+        nav.addItem(new SideNavItem("Account Mappings", AccountMappingView.class));
+        nav.addItem(new SideNavItem("Posting Workbench", PostingWorkbenchView.class));
+        nav.addItem(new SideNavItem("Journal Entries", JournalEntryView.class));
+        nav.addItem(new SideNavItem("Trial Balance", TrialBalanceView.class));
+        nav.addItem(new SideNavItem("General Ledger", GeneralLedgerView.class));
+        nav.addItem(new SideNavItem("GL Integration", GlIntegrationView.class));
+        nav.addItem(new SideNavItem("GL Reconciliation", GlReconciliationView.class));
+        nav.addItem(new SideNavItem("Financial Statements", FinancialStatementView.class));
+
         SideNavItem reporting = new SideNavItem("Reporting and Control");
         reporting.getStyle().set("font-weight", "bold").set("padding", "10px").set("display", "block");
         nav.addItem(reporting);

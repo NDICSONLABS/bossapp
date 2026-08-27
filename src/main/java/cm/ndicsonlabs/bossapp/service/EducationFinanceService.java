@@ -45,6 +45,7 @@ public class EducationFinanceService {
     private final PaymentPlanInstallmentRepository paymentPlanInstallmentRepository;
     private final CurrentUserService currentUserService;
     private final AuditService auditService;
+    private final GlIntegrationService glIntegrationService;
 
     public EducationFinanceService(
             StudentChargeRepository studentChargeRepository,
@@ -57,7 +58,7 @@ public class EducationFinanceService {
             StudentPaymentPlanRepository studentPaymentPlanRepository,
             PaymentPlanInstallmentRepository paymentPlanInstallmentRepository,
             CurrentUserService currentUserService,
-            AuditService auditService
+            AuditService auditService, GlIntegrationService glIntegrationService
     ) {
         this.studentChargeRepository = studentChargeRepository;
         this.studentChargeAdjustmentRepository = studentChargeAdjustmentRepository;
@@ -70,6 +71,7 @@ public class EducationFinanceService {
         this.paymentPlanInstallmentRepository = paymentPlanInstallmentRepository;
         this.currentUserService = currentUserService;
         this.auditService = auditService;
+        this.glIntegrationService = glIntegrationService;
     }
 
     @Transactional
@@ -265,6 +267,7 @@ public class EducationFinanceService {
             charge.setAccountingStatus("NOT_SUBMITTED");
 
             studentChargeRepository.save(charge);
+            glIntegrationService.postStudentChargeSafely(charge.getId());
             created++;
         }
 

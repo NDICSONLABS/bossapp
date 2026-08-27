@@ -17,4 +17,11 @@ public interface SupplierInvoiceRepository extends JpaRepository<SupplierInvoice
             LocalDate end,
             Collection<String> statuses
     );
+    List<SupplierInvoice> findByGlStatusIn(Collection<String> statuses);
+
+    long countByInvoiceDateBetweenAndGlStatusIn(
+            LocalDate start,
+            LocalDate end,
+            Collection<String> statuses
+    );
 }

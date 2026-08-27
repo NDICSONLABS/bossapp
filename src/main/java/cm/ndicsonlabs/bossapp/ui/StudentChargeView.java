@@ -3,9 +3,11 @@ package cm.ndicsonlabs.bossapp.ui;
 
 import cm.ndicsonlabs.bossapp.domain.Student;
 import cm.ndicsonlabs.bossapp.domain.StudentCharge;
+import cm.ndicsonlabs.bossapp.domain.StudentReceipt;
 import cm.ndicsonlabs.bossapp.repository.StudentChargeRepository;
 import cm.ndicsonlabs.bossapp.repository.StudentRepository;
 import cm.ndicsonlabs.bossapp.service.EducationFinanceService;
+import cm.ndicsonlabs.bossapp.service.GlIntegrationService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -33,7 +35,7 @@ public class StudentChargeView extends VerticalLayout {
     public StudentChargeView(
             StudentChargeRepository chargeRepository,
             StudentRepository studentRepository,
-            EducationFinanceService educationFinanceService
+            EducationFinanceService educationFinanceService, GlIntegrationService glIntegrationService
     ) {
         grid.addColumn(charge -> charge.getStudent().getStudentNumber()).setHeader("Student");
         grid.setColumns(
@@ -81,6 +83,8 @@ public class StudentChargeView extends VerticalLayout {
                 charge.setAccountingStatus("NOT_SUBMITTED");
 
                 chargeRepository.save(charge);
+                glIntegrationService.postStudentChargeSafely(charge.getId()); // GL integration
+
                 grid.setItems(chargeRepository.findAll());
                 dialog.close();
             });
@@ -108,13 +112,16 @@ public class StudentChargeView extends VerticalLayout {
 
             Button save = new Button("Save", event -> {
                 try {
-                    educationFinanceService.recordStudentPaymentWithReceipt(
+                    StudentReceipt receipt = educationFinanceService.recordStudentPaymentWithReceipt(
                             selected.getId(),
                             amount.getValue(),
                             payer.getValue(),
                             method.getValue(),
                             LocalDate.now()
                     );
+                    // connect the operational screens to GL posting
+                    glIntegrationService.postStudentChargeSafely(selected.getId());
+                    glIntegrationService.postPaymentSafely(receipt.getPayment().getId());
 
                     grid.setItems(chargeRepository.findAll());
                     dialog.close();

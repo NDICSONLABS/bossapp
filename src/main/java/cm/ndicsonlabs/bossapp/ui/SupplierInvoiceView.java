@@ -2,12 +2,14 @@
 package cm.ndicsonlabs.bossapp.ui;
 
 import cm.ndicsonlabs.bossapp.domain.Department;
+import cm.ndicsonlabs.bossapp.domain.Payment;
 import cm.ndicsonlabs.bossapp.domain.Supplier;
 import cm.ndicsonlabs.bossapp.domain.SupplierInvoice;
 import cm.ndicsonlabs.bossapp.repository.DepartmentRepository;
 import cm.ndicsonlabs.bossapp.repository.SupplierInvoiceRepository;
 import cm.ndicsonlabs.bossapp.repository.SupplierRepository;
 import cm.ndicsonlabs.bossapp.service.FinanceService;
+import cm.ndicsonlabs.bossapp.service.GlIntegrationService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -36,19 +38,19 @@ public class SupplierInvoiceView extends VerticalLayout {
             SupplierInvoiceRepository invoiceRepository,
             SupplierRepository supplierRepository,
             DepartmentRepository departmentRepository,
-            FinanceService financeService
-    ) {
+            FinanceService financeService,
+            GlIntegrationService glIntegrationService) {
         grid.setColumns("invoiceNumber", "invoiceDate", "dueDate", "totalAmount", "paidAmount", "status");
         grid.setItems(invoiceRepository.findAll());
 
         Button newInvoiceButton = new Button(
                 "New Invoice",
-                e -> openNewInvoiceDialog(invoiceRepository, supplierRepository, departmentRepository)
+                e -> openNewInvoiceDialog(invoiceRepository, supplierRepository, departmentRepository, glIntegrationService)
         );
 
         Button payButton = new Button(
                 "Record Payment",
-                e -> openPaymentDialog(invoiceRepository, financeService)
+                e -> openPaymentDialog(invoiceRepository, financeService, glIntegrationService)
         );
 
         add(
@@ -61,8 +63,8 @@ public class SupplierInvoiceView extends VerticalLayout {
     private void openNewInvoiceDialog(
             SupplierInvoiceRepository invoiceRepository,
             SupplierRepository supplierRepository,
-            DepartmentRepository departmentRepository
-    ) {
+            DepartmentRepository departmentRepository,
+            GlIntegrationService glIntegrationService) {
         Dialog dialog = new Dialog();
 
         ComboBox<Supplier> supplierBox = new ComboBox<>("Supplier");
@@ -97,6 +99,7 @@ public class SupplierInvoiceView extends VerticalLayout {
             invoice.setStatus("POSTED");
 
             invoiceRepository.save(invoice);
+            glIntegrationService.postSupplierInvoiceSafely(invoice.getId()); // GL integration
             grid.setItems(invoiceRepository.findAll());
             dialog.close();
         });
@@ -116,8 +119,8 @@ public class SupplierInvoiceView extends VerticalLayout {
 
     private void openPaymentDialog(
             SupplierInvoiceRepository invoiceRepository,
-            FinanceService financeService
-    ) {
+            FinanceService financeService,
+            GlIntegrationService glIntegrationService) {
         SupplierInvoice selected = grid.asSingleSelect().getValue();
 
         if (selected == null) {
@@ -132,7 +135,9 @@ public class SupplierInvoiceView extends VerticalLayout {
 
         Button save = new Button("Save", event -> {
             try {
-                financeService.recordSupplierPayment(selected, amount.getValue(), payee.getValue(), LocalDate.now());
+                Payment payment = financeService.recordSupplierPayment(selected, amount.getValue(), payee.getValue(), LocalDate.now());
+                glIntegrationService.postSupplierInvoiceSafely(selected.getId());
+                glIntegrationService.postPaymentSafely(payment.getId());
                 grid.setItems(invoiceRepository.findAll());
                 dialog.close();
                 Notification.show("Payment recorded.");

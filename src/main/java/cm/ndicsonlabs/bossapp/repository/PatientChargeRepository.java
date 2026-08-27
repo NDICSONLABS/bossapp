@@ -17,4 +17,11 @@ public interface PatientChargeRepository extends JpaRepository<PatientCharge, UU
             LocalDate end,
             Collection<String> statuses
     );
+    List<PatientCharge> findByGlStatusIn(Collection<String> statuses);
+
+    long countByChargeDateBetweenAndGlStatusIn(
+            LocalDate start,
+            LocalDate end,
+            Collection<String> statuses
+    );
 }

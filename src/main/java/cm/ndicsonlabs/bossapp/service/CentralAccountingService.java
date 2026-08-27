@@ -42,6 +42,7 @@ public class CentralAccountingService {
     private final SupplierInvoiceRepository supplierInvoiceRepository;
     private final PaymentRepository paymentRepository;
     private final AuditService auditService;
+    private final GlIntegrationService glIntegrationService;
 
     public CentralAccountingService(
             CurrentUserService currentUserService, DepartmentRepository departmentRepository,
@@ -52,7 +53,7 @@ public class CentralAccountingService {
             PatientChargeRepository patientChargeRepository,
             SupplierInvoiceRepository supplierInvoiceRepository,
             PaymentRepository paymentRepository,
-            AuditService auditService
+            AuditService auditService, GlIntegrationService glIntegrationService
     ) {
         this.currentUserService = currentUserService;
         this.departmentRepository = departmentRepository;
@@ -64,6 +65,7 @@ public class CentralAccountingService {
         this.supplierInvoiceRepository = supplierInvoiceRepository;
         this.paymentRepository = paymentRepository;
         this.auditService = auditService;
+        this.glIntegrationService = glIntegrationService;
     }
 
     @Transactional
@@ -361,7 +363,11 @@ public class CentralAccountingService {
                 "Central accounting accepted submission"
         );
 
-        return submissionRepository.save(submission);
+        DepartmentSubmission saved = submissionRepository.save(submission);
+
+        glIntegrationService.postSubmissionTransactions(saved.getId());
+
+        return saved;
     }
 
     @Transactional
@@ -459,6 +465,44 @@ public class CentralAccountingService {
         return periodRepository.save(period);
     }
 
+    //    @Transactional
+//    public AccountingPeriod lockPeriod(UUID periodId) {
+//        requirePrivilege("ACCOUNTING_PERIOD_LOCK");
+//
+//        AccountingPeriod period = periodRepository.findById(periodId)
+//                .orElseThrow(() -> new IllegalArgumentException("Accounting period not found"));
+//
+//        boolean activeSubmissionExists = submissionRepository.existsByPeriodAndStatusIn(
+//                period,
+//                List.of(
+//                        "DRAFT",
+//                        "DEPARTMENT_APPROVED",
+//                        "SUBMITTED",
+//                        "UNDER_CENTRAL_REVIEW"
+//                )
+//        );
+//
+//        if (activeSubmissionExists) {
+//            throw new IllegalStateException(
+//                    "Period cannot be locked while draft, approved, submitted, or under-review submissions exist."
+//            );
+//        }
+//
+//        period.setStatus("LOCKED");
+//        period.setClosedBy(currentUserService.username());
+//        period.setLockedDate(LocalDate.now());
+//
+//        auditService.log(
+//                "ACCOUNTING_PERIOD",
+//                period.getId(),
+//                "LOCK_PERIOD",
+//                null,
+//                period.getStatus(),
+//                "Accounting period locked"
+//        );
+//
+//        return periodRepository.save(period);
+//    }
     @Transactional
     public AccountingPeriod lockPeriod(UUID periodId) {
         requirePrivilege("ACCOUNTING_PERIOD_LOCK");
@@ -479,6 +523,14 @@ public class CentralAccountingService {
         if (activeSubmissionExists) {
             throw new IllegalStateException(
                     "Period cannot be locked while draft, approved, submitted, or under-review submissions exist."
+            );
+        }
+
+        long unposted = glIntegrationService.countUnpostedForPeriod(period);
+
+        if (unposted > 0) {
+            throw new IllegalStateException(
+                    "Period cannot be locked because there are " + unposted + " unposted GL transactions."
             );
         }
 
@@ -505,6 +557,7 @@ public class CentralAccountingService {
             );
         }
     }
+
     private DepartmentSubmission getSubmission(UUID submissionId) {
         return submissionRepository.findById(submissionId)
                 .orElseThrow(() -> new IllegalArgumentException("Submission not found"));

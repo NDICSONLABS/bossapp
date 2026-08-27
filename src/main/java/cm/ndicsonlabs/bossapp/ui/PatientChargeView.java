@@ -3,10 +3,10 @@ package cm.ndicsonlabs.bossapp.ui;
 
 import cm.ndicsonlabs.bossapp.domain.PatientAccount;
 import cm.ndicsonlabs.bossapp.domain.PatientCharge;
-import cm.ndicsonlabs.bossapp.domain.PatientEncounter;
+import cm.ndicsonlabs.bossapp.domain.Payment;
 import cm.ndicsonlabs.bossapp.repository.PatientAccountRepository;
 import cm.ndicsonlabs.bossapp.repository.PatientChargeRepository;
-import cm.ndicsonlabs.bossapp.repository.PatientEncounterRepository;
+import cm.ndicsonlabs.bossapp.service.GlIntegrationService;
 import cm.ndicsonlabs.bossapp.service.PatientBillingService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -35,8 +35,8 @@ public class PatientChargeView extends VerticalLayout {
     public PatientChargeView(
             PatientChargeRepository repository,
             PatientAccountRepository patientAccountRepository,
-            PatientBillingService patientBillingService
-    ) {
+            PatientBillingService patientBillingService,
+            GlIntegrationService glIntegrationService) {
         grid.addColumn(charge -> charge.getPatientAccount().getPatientNumber()).setHeader("Patient");
         grid.setColumns("serviceCategory", "chargeDate", "dueDate", "amount", "paidAmount", "status");
         grid.setItems(repository.findAll());
@@ -69,6 +69,7 @@ public class PatientChargeView extends VerticalLayout {
                 charge.setStatus("POSTED");
 
                 repository.save(charge);
+                glIntegrationService.postPatientChargeSafely(charge.getId());
                 grid.setItems(repository.findAll());
                 dialog.close();
             });
@@ -93,7 +94,9 @@ public class PatientChargeView extends VerticalLayout {
 
             Button save = new Button("Save", event -> {
                 try {
-                    patientBillingService.recordPatientPayment(selected, amount.getValue(), payer.getValue(), LocalDate.now());
+                    Payment payment = patientBillingService.recordPatientPayment(selected, amount.getValue(), payer.getValue(), LocalDate.now());
+                    glIntegrationService.postPatientChargeSafely(selected.getId());
+                    glIntegrationService.postPaymentSafely(payment.getId());
                     grid.setItems(repository.findAll());
                     dialog.close();
                     Notification.show("Patient payment recorded.");
