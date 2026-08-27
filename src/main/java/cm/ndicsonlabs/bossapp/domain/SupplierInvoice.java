@@ -39,6 +39,52 @@ public class SupplierInvoice extends AccountingBaseEntity {
     @Column(nullable = false)
     private String status = "POSTED";
 
+    @ManyToOne
+    @JoinColumn(name = "purchase_order_id")
+    private PurchaseOrder purchaseOrder;
+
+    @ManyToOne
+    @JoinColumn(name = "goods_receipt_id")
+    private GoodsReceipt goodsReceipt;
+
+    @Column(name = "match_status", nullable = false)
+    private String matchStatus = "UNMATCHED";
+
+    @Column(name = "procurement_notes", columnDefinition = "TEXT")
+    private String procurementNotes;
+
+    public PurchaseOrder getPurchaseOrder() {
+        return purchaseOrder;
+    }
+
+    public void setPurchaseOrder(PurchaseOrder purchaseOrder) {
+        this.purchaseOrder = purchaseOrder;
+    }
+
+    public GoodsReceipt getGoodsReceipt() {
+        return goodsReceipt;
+    }
+
+    public void setGoodsReceipt(GoodsReceipt goodsReceipt) {
+        this.goodsReceipt = goodsReceipt;
+    }
+
+    public String getMatchStatus() {
+        return matchStatus;
+    }
+
+    public void setMatchStatus(String matchStatus) {
+        this.matchStatus = matchStatus;
+    }
+
+    public String getProcurementNotes() {
+        return procurementNotes;
+    }
+
+    public void setProcurementNotes(String procurementNotes) {
+        this.procurementNotes = procurementNotes;
+    }
+
     public Supplier getSupplier() {
         return supplier;
     }

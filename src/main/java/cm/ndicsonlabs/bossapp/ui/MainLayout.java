@@ -48,6 +48,34 @@ public class MainLayout extends AppLayout implements RouterLayout {
         nav.addItem(procurement);
         nav.addItem(new SideNavItem("Supplier Invoices", SupplierInvoiceView.class));
 
+        SideNavItem procurementControl = new SideNavItem("Procurement and Supplier Control");
+        procurementControl.getStyle().set("font-weight", "bold").set("padding", "10px").set("display", "block");
+        nav.addItem(procurementControl);
+
+        nav.addItem(new SideNavItem("Purchase Requests", PurchaseRequestView.class));
+        nav.addItem(new SideNavItem("Purchase Orders", PurchaseOrderView.class));
+        nav.addItem(new SideNavItem("Procurement Invoices", ProcurementInvoiceView.class));
+        nav.addItem(new SideNavItem("Procurement Control", ProcurementControlView.class));
+
+        SideNavItem pharmacyCredit = new SideNavItem("Pharmacy and Supplier Credit");
+        pharmacyCredit.getStyle().set("font-weight", "bold").set("padding", "10px").set("display", "block");
+        nav.addItem(pharmacyCredit);
+
+        nav.addItem(new SideNavItem("Supplier Credit Control", SupplierCreditControlView.class));
+        nav.addItem(new SideNavItem("Supplier Credit Ledger", SupplierCreditLedgerView.class));
+        nav.addItem(new SideNavItem("Supplier Batches", SupplierBatchView.class));
+        nav.addItem(new SideNavItem("Supplier Credit Alerts", SupplierCreditAlertView.class));
+        nav.addItem(new SideNavItem("Pharmacy Daily Reconciliation", PharmacyDailyReconciliationView.class));
+
+        SideNavItem inventory = new SideNavItem("Inventory and Stock");
+        inventory.getStyle().set("font-weight", "bold").set("padding", "10px").set("display", "block");
+        nav.addItem(inventory);
+
+        nav.addItem(new SideNavItem("Inventory Items", InventoryItemView.class));
+        nav.addItem(new SideNavItem("Inventory Locations", InventoryLocationView.class));
+        nav.addItem(new SideNavItem("Inventory Operations", InventoryOperationsView.class));
+        nav.addItem(new SideNavItem("Inventory Reports", InventoryReportView.class));
+
         SideNavItem finance = new SideNavItem("Finance");
         finance.getStyle().set("font-weight", "bold").set("padding", "10px").set("display", "block");
         nav.addItem(finance);

@@ -34,4 +34,8 @@ public abstract class BaseEntity {
     public Instant getCreatedAt() {
         return createdAt;
     }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
 }

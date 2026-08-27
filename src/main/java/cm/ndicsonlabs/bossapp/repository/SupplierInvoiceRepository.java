@@ -24,4 +24,9 @@ public interface SupplierInvoiceRepository extends JpaRepository<SupplierInvoice
             LocalDate end,
             Collection<String> statuses
     );
+    boolean existsBySupplierIdAndInvoiceNumber(UUID supplierId, String invoiceNumber);
+
+    List<SupplierInvoice> findBySupplierId(UUID supplierId);
+
+    List<SupplierInvoice> findByPurchaseOrderId(UUID purchaseOrderId);
 }
