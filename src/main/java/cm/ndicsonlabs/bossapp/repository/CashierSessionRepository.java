@@ -14,4 +14,10 @@ public interface CashierSessionRepository extends JpaRepository<CashierSession, 
     boolean existsByDepartmentAndSessionDate(Department department, LocalDate sessionDate);
 
     List<CashierSession> findByOrderByCreatedAtDesc();
+
+    long countBySessionDateBetweenAndStatusNot(
+            LocalDate start,
+            LocalDate end,
+            String status
+    );
 }

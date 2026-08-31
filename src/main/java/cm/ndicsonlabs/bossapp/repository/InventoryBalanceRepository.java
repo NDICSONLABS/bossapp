@@ -22,4 +22,6 @@ public interface InventoryBalanceRepository extends JpaRepository<InventoryBalan
     );
 
     List<InventoryBalance> findByLocationId(UUID locationId);
+
+    long countByQuantityOnHandLessThan(java.math.BigDecimal quantity);
 }

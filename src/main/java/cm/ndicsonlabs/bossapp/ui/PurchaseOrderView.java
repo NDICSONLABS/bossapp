@@ -1,14 +1,8 @@
 // src/main/java/com/institution/finance/ui/PurchaseOrderView.java
 package cm.ndicsonlabs.bossapp.ui;
 
-import cm.ndicsonlabs.bossapp.domain.Department;
-import cm.ndicsonlabs.bossapp.domain.PurchaseOrder;
-import cm.ndicsonlabs.bossapp.domain.PurchaseOrderLine;
-import cm.ndicsonlabs.bossapp.domain.Supplier;
-import cm.ndicsonlabs.bossapp.repository.DepartmentRepository;
-import cm.ndicsonlabs.bossapp.repository.PurchaseOrderLineRepository;
-import cm.ndicsonlabs.bossapp.repository.PurchaseOrderRepository;
-import cm.ndicsonlabs.bossapp.repository.SupplierRepository;
+import cm.ndicsonlabs.bossapp.domain.*;
+import cm.ndicsonlabs.bossapp.repository.*;
 import cm.ndicsonlabs.bossapp.service.ProcurementService;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -31,7 +25,7 @@ import java.util.List;
 @Route(value = "purchase-orders", layout = MainLayout.class)
 @PermitAll
 public class PurchaseOrderView extends VerticalLayout {
-
+    BudgetLineRepository budgetLineRepository;
     private final Grid<PurchaseOrder> orderGrid = new Grid<>(PurchaseOrder.class);
     private final Grid<PurchaseOrderLine> lineGrid = new Grid<>(PurchaseOrderLine.class);
 
@@ -74,6 +68,11 @@ public class PurchaseOrderView extends VerticalLayout {
         Button newOrderButton = new Button("New Purchase Order", e -> {
             Dialog dialog = new Dialog();
 
+            ComboBox<BudgetLine> budgetBox = new ComboBox<>("Budget Line");
+            budgetBox.setItems(budgetLineRepository.findAll());
+            budgetBox.setItemLabelGenerator(BudgetLine::getLabel);
+            budgetBox.setClearButtonVisible(true);
+
             ComboBox<Supplier> supplierBox = new ComboBox<>("Supplier");
             supplierBox.setItems(supplierRepository.findAll());
             supplierBox.setItemLabelGenerator(Supplier::getName);
@@ -104,11 +103,19 @@ public class PurchaseOrderView extends VerticalLayout {
                             taxPercent.getValue()
                     );
 
+//                    procurementService.createPurchaseOrder(
+//                            supplierBox.getValue(),
+//                            departmentBox.getValue(),
+//                            expectedDeliveryDate.getValue(),
+//                            currency.getValue(),
+//                            List.of(line)
+//                    );
                     procurementService.createPurchaseOrder(
                             supplierBox.getValue(),
                             departmentBox.getValue(),
                             expectedDeliveryDate.getValue(),
                             currency.getValue(),
+                            budgetBox.getValue() != null ? budgetBox.getValue().getId() : null,
                             List.of(line)
                     );
 

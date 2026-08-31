@@ -76,8 +76,8 @@ public class CentralAccountingService {
         AccountingPeriod period = periodRepository.findById(periodId)
                 .orElseThrow(() -> new IllegalArgumentException("Accounting period not found"));
 
-        if ("LOCKED".equals(period.getStatus())) {
-            throw new IllegalStateException("Accounting period is locked.");
+        if (!"OPEN".equals(period.getStatus())) {
+            throw new IllegalStateException("Accounting period is not open.");
         }
 
         boolean activeSubmissionExists = submissionRepository.existsByPeriodAndDepartmentAndStatusIn(

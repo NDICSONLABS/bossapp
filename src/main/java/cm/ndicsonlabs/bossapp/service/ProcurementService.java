@@ -1,20 +1,8 @@
 // src/main/java/com/institution/finance/service/ProcurementService.java
 package cm.ndicsonlabs.bossapp.service;
 
-import cm.ndicsonlabs.bossapp.domain.Department;
-import cm.ndicsonlabs.bossapp.domain.GoodsReceipt;
-import cm.ndicsonlabs.bossapp.domain.GoodsReceiptLine;
-import cm.ndicsonlabs.bossapp.domain.ProcurementMatchIssue;
-import cm.ndicsonlabs.bossapp.domain.PurchaseOrder;
-import cm.ndicsonlabs.bossapp.domain.PurchaseOrderLine;
-import cm.ndicsonlabs.bossapp.domain.Supplier;
-import cm.ndicsonlabs.bossapp.domain.SupplierInvoice;
-import cm.ndicsonlabs.bossapp.repository.GoodsReceiptLineRepository;
-import cm.ndicsonlabs.bossapp.repository.GoodsReceiptRepository;
-import cm.ndicsonlabs.bossapp.repository.ProcurementMatchIssueRepository;
-import cm.ndicsonlabs.bossapp.repository.PurchaseOrderLineRepository;
-import cm.ndicsonlabs.bossapp.repository.PurchaseOrderRepository;
-import cm.ndicsonlabs.bossapp.repository.SupplierInvoiceRepository;
+import cm.ndicsonlabs.bossapp.domain.*;
+import cm.ndicsonlabs.bossapp.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +25,8 @@ public class ProcurementService {
     private final ProcurementMatchIssueRepository matchIssueRepository;
     private final CurrentUserService currentUserService;
     private final SupplierCreditService supplierCreditService;
+    private final BudgetLineRepository budgetLineRepository;
+    private final BudgetControlService budgetControlService;
 
     public ProcurementService(
             PurchaseOrderRepository purchaseOrderRepository,
@@ -45,7 +35,7 @@ public class ProcurementService {
             GoodsReceiptLineRepository goodsReceiptLineRepository,
             SupplierInvoiceRepository supplierInvoiceRepository,
             ProcurementMatchIssueRepository matchIssueRepository,
-            CurrentUserService currentUserService, SupplierCreditService supplierCreditService
+            CurrentUserService currentUserService, SupplierCreditService supplierCreditService, BudgetLineRepository budgetLineRepository, BudgetControlService budgetControlService
     ) {
         this.purchaseOrderRepository = purchaseOrderRepository;
         this.purchaseOrderLineRepository = purchaseOrderLineRepository;
@@ -55,6 +45,8 @@ public class ProcurementService {
         this.matchIssueRepository = matchIssueRepository;
         this.currentUserService = currentUserService;
         this.supplierCreditService = supplierCreditService;
+        this.budgetLineRepository = budgetLineRepository;
+        this.budgetControlService = budgetControlService;
     }
 
     @Transactional
@@ -63,6 +55,7 @@ public class ProcurementService {
             Department department,
             LocalDate expectedDeliveryDate,
             String currency,
+            UUID budgetLineId,
             List<NewPurchaseOrderLine> lines
     ) {
         if (lines == null || lines.isEmpty()) {
@@ -107,7 +100,15 @@ public class ProcurementService {
         }
 
         order.setTotalAmount(total);
-        return purchaseOrderRepository.save(order);
+        if (budgetLineId != null) {
+            BudgetLine budgetLine = budgetLineRepository.findById(budgetLineId)
+                    .orElseThrow(() -> new IllegalArgumentException("Budget line not found"));
+
+            order.setBudgetLine(budgetLine);
+        }
+        PurchaseOrder saved = purchaseOrderRepository.save(order);
+        budgetControlService.reserveForPurchaseOrder(order);
+        return saved;
     }
 
     @Transactional
@@ -208,8 +209,10 @@ public class ProcurementService {
         invoice.setGoodsReceipt(receipt);
         invoice.setMatchStatus("UNMATCHED");
 
-        supplierInvoiceRepository.save(invoice);
+        invoice.setBudgetLine(order.getBudgetLine());
 
+        supplierInvoiceRepository.save(invoice);
+        budgetControlService.registerInvoiceConsumption(invoice);
         matchInvoice(invoice.getId());
 
         return invoice;

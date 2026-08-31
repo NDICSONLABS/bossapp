@@ -53,6 +53,10 @@ public class SupplierInvoice extends AccountingBaseEntity {
     @Column(name = "procurement_notes", columnDefinition = "TEXT")
     private String procurementNotes;
 
+    @ManyToOne
+    @JoinColumn(name = "budget_line_id")
+    private BudgetLine budgetLine;
+
     public PurchaseOrder getPurchaseOrder() {
         return purchaseOrder;
     }
@@ -151,5 +155,13 @@ public class SupplierInvoice extends AccountingBaseEntity {
 
     public BigDecimal getRemainingAmount() {
         return totalAmount.subtract(paidAmount);
+    }
+
+    public BudgetLine getBudgetLine() {
+        return budgetLine;
+    }
+
+    public void setBudgetLine(BudgetLine budgetLine) {
+        this.budgetLine = budgetLine;
     }
 }

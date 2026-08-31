@@ -1,6 +1,7 @@
 // src/main/java/com/institution/finance/ui/MainLayout.java
 package cm.ndicsonlabs.bossapp.ui;
 
+import cm.ndicsonlabs.bossapp.ui.treasury.*;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -76,6 +77,17 @@ public class MainLayout extends AppLayout implements RouterLayout {
         nav.addItem(new SideNavItem("Inventory Operations", InventoryOperationsView.class));
         nav.addItem(new SideNavItem("Inventory Reports", InventoryReportView.class));
 
+        SideNavItem treasury = new SideNavItem("Treasury and Cash Management");
+        treasury.getStyle().set("font-weight", "bold").set("padding", "10px").set("display", "block");
+        nav.addItem(treasury);
+
+        nav.addItem(new SideNavItem("Treasury Dashboard", TreasuryDashboardView.class));
+        nav.addItem(new SideNavItem("Treasury Accounts", TreasuryAccountView.class));
+        nav.addItem(new SideNavItem("Cashbook", CashbookView.class));
+        nav.addItem(new SideNavItem("Payment Posting", TreasuryPaymentPostingView.class));
+        nav.addItem(new SideNavItem("Bank Statements", BankStatementView.class));
+        nav.addItem(new SideNavItem("Bank Reconciliation", BankReconciliationView.class));
+
         SideNavItem finance = new SideNavItem("Finance");
         finance.getStyle().set("font-weight", "bold").set("padding", "10px").set("display", "block");
         nav.addItem(finance);
@@ -100,12 +112,23 @@ public class MainLayout extends AppLayout implements RouterLayout {
         nav.addItem(new SideNavItem("Reports", ReportControlView.class));
         nav.addItem(new SideNavItem("Audit Log", AuditLogView.class));
 
+        SideNavItem budgeting = new SideNavItem("Budgeting and Grants");
+        budgeting.getStyle().set("font-weight", "bold").set("padding", "10px").set("display", "block");
+        nav.addItem(budgeting);
+
+        nav.addItem(new SideNavItem("Budget Master Data", BudgetMasterDataView.class));
+        nav.addItem(new SideNavItem("Budget Headers", BudgetHeaderView.class));
+        nav.addItem(new SideNavItem("Budget Adjustments", BudgetAdjustmentView.class));
+        nav.addItem(new SideNavItem("Budget Reports", BudgetReportView.class));
+
         SideNavItem central = new SideNavItem("Central Accounting");
         central.getStyle().set("font-weight", "bold").set("padding", "10px").set("display", "block");
         nav.addItem(central);
         nav.addItem(new SideNavItem("Central Dashboard", CentralDashboardView.class));
         nav.addItem(new SideNavItem("Accounting Periods", AccountingPeriodView.class));
         nav.addItem(new SideNavItem("Department Submissions", DepartmentSubmissionView.class));
+        nav.addItem(new SideNavItem("Period Close", PeriodCloseView.class));
+        nav.addItem(new SideNavItem("Departmental Statements", DepartmentalStatementsView.class));
 
         VerticalLayout drawer = new VerticalLayout(title, nav);
         drawer.setPadding(false);
