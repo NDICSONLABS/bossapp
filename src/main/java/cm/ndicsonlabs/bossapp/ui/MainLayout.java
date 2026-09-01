@@ -1,6 +1,10 @@
 // src/main/java/com/institution/finance/ui/MainLayout.java
 package cm.ndicsonlabs.bossapp.ui;
 
+import cm.ndicsonlabs.bossapp.ui.fixedasset.AssetCapitalizationView;
+import cm.ndicsonlabs.bossapp.ui.fixedasset.AssetDepreciationView;
+import cm.ndicsonlabs.bossapp.ui.fixedasset.AssetRegisterView;
+import cm.ndicsonlabs.bossapp.ui.payroll.*;
 import cm.ndicsonlabs.bossapp.ui.treasury.*;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.html.Span;
@@ -25,6 +29,14 @@ public class MainLayout extends AppLayout implements RouterLayout {
 
         nav.addItem(new SideNavItem("Dashboard", DashboardView.class));
         nav.addItem(new SideNavItem("Departments", DepartmentView.class));
+
+        SideNavItem assets = new SideNavItem("Fixed Assets");
+        assets.getStyle().set("font-weight", "bold").set("padding", "10px").set("display", "block");
+        nav.addItem(assets);
+
+        nav.addItem(new SideNavItem("Asset Register", AssetRegisterView.class));
+        nav.addItem(new SideNavItem("Asset Capitalization", AssetCapitalizationView.class));
+        nav.addItem(new SideNavItem("Depreciation & Disposal", AssetDepreciationView.class));
 
         SideNavItem education = new SideNavItem("Education");
         education.getStyle().set("font-weight", "bold").set("padding", "10px").set("display", "block");
@@ -105,6 +117,16 @@ public class MainLayout extends AppLayout implements RouterLayout {
         nav.addItem(new SideNavItem("GL Integration", GlIntegrationView.class));
         nav.addItem(new SideNavItem("GL Reconciliation", GlReconciliationView.class));
         nav.addItem(new SideNavItem("Financial Statements", FinancialStatementView.class));
+
+        SideNavItem payroll = new SideNavItem("Payroll");
+        payroll.getStyle().set("font-weight", "bold").set("padding", "10px").set("display", "block");
+        nav.addItem(payroll);
+
+        nav.addItem(new SideNavItem("Employees", EmployeeView.class));
+        nav.addItem(new SideNavItem("Payroll Components", PayrollComponentView.class));
+        nav.addItem(new SideNavItem("Employee Salary Components", EmployeeSalaryComponentView.class));
+        nav.addItem(new SideNavItem("Payroll Periods", PayrollPeriodView.class));
+        nav.addItem(new SideNavItem("Payroll Runs", PayrollRunView.class));
 
         SideNavItem reporting = new SideNavItem("Reporting and Control");
         reporting.getStyle().set("font-weight", "bold").set("padding", "10px").set("display", "block");

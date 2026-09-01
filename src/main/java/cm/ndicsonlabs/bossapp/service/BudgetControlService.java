@@ -388,6 +388,47 @@ public class BudgetControlService {
         );
     }
 
+    @Transactional
+    public void registerDirectExpense(
+            UUID budgetLineId,
+            BigDecimal amount,
+            String referenceType,
+            UUID referenceId
+    ) {
+        requireBudgetPrivilege();
+
+        BudgetLine line = budgetLineRepository.findById(budgetLineId)
+                .orElseThrow(() -> new IllegalArgumentException("Budget line not found"));
+
+        if (!"APPROVED".equals(line.getBudgetHeader().getStatus())) {
+            throw new IllegalStateException("Direct expenses can only consume approved budgets.");
+        }
+
+        if (amount == null || amount.signum() == 0) {
+            return;
+        }
+
+        BigDecimal available = availableAmount(line);
+
+        if (available.compareTo(amount) < 0) {
+            throw new IllegalStateException(
+                    "Insufficient available budget. Available: " + available + ", Required: " + amount
+            );
+        }
+
+        line.setSpentAmount(nullSafe(line.getSpentAmount()).add(amount));
+        budgetLineRepository.save(line);
+
+        auditService.log(
+                "BUDGET_LINE",
+                line.getId(),
+                "DIRECT_EXPENSE",
+                null,
+                amount.toPlainString(),
+                referenceType + " consumption"
+        );
+    }
+
     public BigDecimal availableAmount(BudgetLine line) {
         BigDecimal original = nullSafe(line.getOriginalAmount());
         BigDecimal adjusted = nullSafe(line.getAdjustedAmount());
