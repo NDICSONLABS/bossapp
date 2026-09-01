@@ -4,6 +4,10 @@ package cm.ndicsonlabs.bossapp.ui;
 import cm.ndicsonlabs.bossapp.ui.fixedasset.AssetCapitalizationView;
 import cm.ndicsonlabs.bossapp.ui.fixedasset.AssetDepreciationView;
 import cm.ndicsonlabs.bossapp.ui.fixedasset.AssetRegisterView;
+import cm.ndicsonlabs.bossapp.ui.interdept.CostAllocationView;
+import cm.ndicsonlabs.bossapp.ui.interdept.EliminationReportView;
+import cm.ndicsonlabs.bossapp.ui.interdept.InternalInvoiceView;
+import cm.ndicsonlabs.bossapp.ui.interdept.InternalServiceCatalogView;
 import cm.ndicsonlabs.bossapp.ui.payroll.*;
 import cm.ndicsonlabs.bossapp.ui.treasury.*;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -151,6 +155,15 @@ public class MainLayout extends AppLayout implements RouterLayout {
         nav.addItem(new SideNavItem("Department Submissions", DepartmentSubmissionView.class));
         nav.addItem(new SideNavItem("Period Close", PeriodCloseView.class));
         nav.addItem(new SideNavItem("Departmental Statements", DepartmentalStatementsView.class));
+
+        SideNavItem internalBilling = new SideNavItem("Internal Billing and Allocation");
+        internalBilling.getStyle().set("font-weight", "bold").set("padding", "10px").set("display", "block");
+        nav.addItem(internalBilling);
+
+        nav.addItem(new SideNavItem("Internal Service Catalog", InternalServiceCatalogView.class));
+        nav.addItem(new SideNavItem("Internal Invoices", InternalInvoiceView.class));
+        nav.addItem(new SideNavItem("Cost Allocation", CostAllocationView.class));
+        nav.addItem(new SideNavItem("Elimination Report", EliminationReportView.class));
 
         VerticalLayout drawer = new VerticalLayout(title, nav);
         drawer.setPadding(false);
