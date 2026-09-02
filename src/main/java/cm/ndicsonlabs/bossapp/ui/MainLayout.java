@@ -137,6 +137,7 @@ public class MainLayout extends AppLayout implements RouterLayout {
         nav.addItem(reporting);
         nav.addItem(new SideNavItem("Reports", ReportControlView.class));
         nav.addItem(new SideNavItem("Audit Log", AuditLogView.class));
+        nav.addItem(new SideNavItem("Formal Statements", "formal-statements"));
 
         SideNavItem budgeting = new SideNavItem("Budgeting and Grants");
         budgeting.getStyle().set("font-weight", "bold").set("padding", "10px").set("display", "block");

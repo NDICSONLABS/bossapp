@@ -37,4 +37,26 @@ public class AccountingEntryLine extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @ManyToOne
+    @JoinColumn(name = "tax_code_id")
+    private TaxCode taxCode;
+
+    @Column(name = "currency")
+    private String currency;
+
+    @Column(name = "exchange_rate", precision = 19, scale = 8)
+    private BigDecimal exchangeRate;
+
+    @Column(name = "debit_currency", precision = 19, scale = 4)
+    private BigDecimal debitCurrency;
+
+    @Column(name = "credit_currency", precision = 19, scale = 4)
+    private BigDecimal creditCurrency;
+
+    @Column(name = "tax_basis", precision = 19, scale = 4)
+    private BigDecimal taxBasis;
+
+    @Column(name = "tax_amount", precision = 19, scale = 4)
+    private BigDecimal taxAmount;
 }

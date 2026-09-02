@@ -3,6 +3,7 @@ package cm.ndicsonlabs.bossapp.repository;
 
 import cm.ndicsonlabs.bossapp.domain.AccountingEntry;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -19,6 +20,24 @@ public interface AccountingEntryRepository extends JpaRepository<AccountingEntry
     List<AccountingEntry> findByEntryDateBetweenAndStatus(
             LocalDate startDate,
             LocalDate endDate,
+            String status
+    );
+
+    @Query("""
+        select e.sourceType, e.sourceId, count(e)
+        from AccountingEntry e
+        where e.sourceType is not null
+          and e.sourceId is not null
+          and e.status = 'POSTED'
+          and e.reversedByEntryId is null
+        group by e.sourceType, e.sourceId
+        having count(e) > 1
+""")
+    List<Object[]> findDuplicatePostedSources();
+
+    List<AccountingEntry> findBySourceTypeAndSourceIdAndStatusOrderByCreatedAtAsc(
+            String sourceType,
+            UUID sourceId,
             String status
     );
 }

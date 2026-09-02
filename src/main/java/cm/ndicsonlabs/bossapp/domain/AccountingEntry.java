@@ -9,6 +9,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
@@ -53,4 +54,22 @@ public class AccountingEntry extends BaseEntity {
 
     @Column(name = "posted_at")
     private Instant postedAt;
+
+    @Column(name = "transaction_currency")
+    private String transactionCurrency;
+
+    @Column(name = "base_currency")
+    private String baseCurrency;
+
+    @Column(name = "exchange_rate", precision = 19, scale = 8)
+    private BigDecimal exchangeRate;
+
+    @Column(name = "reversed_by_entry_id")
+    private UUID reversedByEntryId;
+
+    @Column(name = "reversal_reason", columnDefinition = "TEXT")
+    private String reversalReason;
+
+    @Column(name = "auto_reversed", nullable = false)
+    private boolean autoReversed = false;
 }

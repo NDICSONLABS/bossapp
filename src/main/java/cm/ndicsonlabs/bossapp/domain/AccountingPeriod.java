@@ -35,12 +35,15 @@ public class AccountingPeriod extends BaseEntity {
 
     @Column(name = "locked_date")
     private LocalDate lockedDate;
-    // src/main/java/com/institution/finance/domain/AccountingPeriod.java
+
     @Column(name = "reopened_by")
     private String reopenedBy;
 
     @Column(name = "reopened_at")
     private Instant reopenedAt;
+
+    @Column(name = "closed_at")
+    private Instant closedAt;
 
     @Column(name = "reopen_reason", columnDefinition = "TEXT")
     private String reopenReason;
@@ -136,5 +139,13 @@ public class AccountingPeriod extends BaseEntity {
     @Override
     public String toString() {
         return fiscalYear + " P" + periodNumber;
+    }
+
+    public Instant getClosedAt() {
+        return closedAt;
+    }
+
+    public void setClosedAt(Instant closedAt) {
+        this.closedAt = closedAt;
     }
 }
