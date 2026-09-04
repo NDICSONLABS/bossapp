@@ -23,7 +23,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Route(value = "insurance-claims", layout = MainLayout.class)

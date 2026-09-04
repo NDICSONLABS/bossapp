@@ -14,6 +14,7 @@ import cm.ndicsonlabs.bossapp.repository.DepartmentRepository;
 import cm.ndicsonlabs.bossapp.repository.FundRepository;
 import cm.ndicsonlabs.bossapp.repository.GrantAwardRepository;
 import cm.ndicsonlabs.bossapp.service.BudgetControlService;
+import cm.ndicsonlabs.bossapp.ui.ux.BudgetLineSpreadsheet;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -41,7 +42,7 @@ public class BudgetHeaderView extends VerticalLayout {
 
     public BudgetHeaderView(
             BudgetHeaderRepository headerRepository,
-            BudgetLineRepository lineRepository,
+            BudgetLineRepository budgetLineRepository,
             FundRepository fundRepository,
             GrantAwardRepository grantRepository,
             DepartmentRepository departmentRepository,
@@ -78,7 +79,7 @@ public class BudgetHeaderView extends VerticalLayout {
             if (event.getValue() == null) {
                 lineGrid.setItems();
             } else {
-                lineGrid.setItems(lineRepository.findByBudgetHeaderIdOrderByCreatedAtAsc(event.getValue().getId()));
+                lineGrid.setItems(budgetLineRepository.findByBudgetHeaderIdOrderByCreatedAtAsc(event.getValue().getId()));
             }
         });
 
@@ -126,6 +127,45 @@ public class BudgetHeaderView extends VerticalLayout {
             dialog.open();
         });
 
+        // Inside BudgetHeaderView.java constructor
+
+// Remove the old "Add Budget Line" dialog button and replace with:
+        Button editLinesBtn = new Button("Edit Budget Lines (Spreadsheet)", e -> {
+            BudgetHeader selected = headerGrid.asSingleSelect().getValue();
+            if (selected == null || !"DRAFT".equals(selected.getStatus())) {
+                Notification.show("Select a draft budget header to edit lines.");
+                return;
+            }
+
+            Dialog dialog = new Dialog();
+            dialog.setWidth("1000px");
+            dialog.setHeaderTitle("Budget Lines: " + selected.getFund().getCode());
+
+            BudgetLineSpreadsheet spreadsheetEditor = new BudgetLineSpreadsheet(
+                    accountCodeRepository,
+                    parsedLines -> {
+                        // 1. Delete existing lines for this header (or use a smart diffing service)
+                        budgetLineRepository.deleteByBudgetHeaderId(selected.getId());
+
+                        // 2. Save new lines
+                        parsedLines.forEach(line -> {
+                            line.setBudgetHeader(selected);
+                            budgetLineRepository.save(line);
+                        });
+
+                        // 3. Refresh UI
+                        lineGrid.setItems(budgetLineRepository.findByBudgetHeaderIdOrderByCreatedAtAsc(selected.getId()));
+                        dialog.close();
+                    }
+            );
+
+            // Load existing lines into the spreadsheet
+            spreadsheetEditor.loadData(budgetLineRepository.findByBudgetHeaderIdOrderByCreatedAtAsc(selected.getId()));
+
+            dialog.add(spreadsheetEditor);
+            dialog.open();
+        });
+
         Button addLineButton = new Button("Add Budget Line", e -> {
             BudgetHeader selected = headerGrid.asSingleSelect().getValue();
 
@@ -155,7 +195,7 @@ public class BudgetHeaderView extends VerticalLayout {
                             amount.getValue()
                     );
 
-                    lineGrid.setItems(lineRepository.findByBudgetHeaderIdOrderByCreatedAtAsc(selected.getId()));
+                    lineGrid.setItems(budgetLineRepository.findByBudgetHeaderIdOrderByCreatedAtAsc(selected.getId()));
                     dialog.close();
                     Notification.show("Budget line added.");
                 } catch (Exception ex) {
@@ -225,13 +265,13 @@ public class BudgetHeaderView extends VerticalLayout {
             BudgetHeader selected = headerGrid.asSingleSelect().getValue();
 
             if (selected != null) {
-                lineGrid.setItems(lineRepository.findByBudgetHeaderIdOrderByCreatedAtAsc(selected.getId()));
+                lineGrid.setItems(budgetLineRepository.findByBudgetHeaderIdOrderByCreatedAtAsc(selected.getId()));
             }
         });
 
         add(
                 new H2("Budget Headers"),
-                new HorizontalLayout(newHeaderButton, addLineButton, submitButton, approveButton, lockButton, refreshButton),
+                new HorizontalLayout(newHeaderButton, addLineButton, editLinesBtn, submitButton, approveButton, lockButton, refreshButton),
                 headerGrid,
                 new H2("Budget Lines"),
                 lineGrid

@@ -25,8 +25,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import jakarta.annotation.security.PermitAll;
 
-import java.math.BigDecimal;
-
 @Route(value = "fee-schedules", layout = MainLayout.class)
 @PermitAll
 public class FeeScheduleView extends VerticalLayout {

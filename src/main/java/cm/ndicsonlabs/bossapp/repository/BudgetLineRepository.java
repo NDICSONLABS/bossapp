@@ -10,4 +10,5 @@ import java.util.UUID;
 public interface BudgetLineRepository extends JpaRepository<BudgetLine, UUID> {
 
     List<BudgetLine> findByBudgetHeaderIdOrderByCreatedAtAsc(UUID budgetHeaderId);
+    void deleteByBudgetHeaderId(UUID budgetHeaderId);
 }
